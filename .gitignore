@@ -1,0 +1,28 @@
+# Python
+backend/venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Node / TypeScript
+node_modules/
+extension/out/
+extension/*.vsix
+dashboard/build/
+dashboard/dist/
+
+# Environment / secrets
+.env
+*.env.local
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
