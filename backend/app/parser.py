@@ -9,6 +9,7 @@ ever touching Tree-sitter's raw API directly.
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Tree
 
+
 # Built ONCE at import time, not per-call — Language/Parser construction
 # has overhead we don't want to pay on every single analysis request.
 PY_LANGUAGE = Language(tspython.language())
@@ -126,10 +127,12 @@ def _is_top_level(func_node):
 
 
 def analyze_file(source_code: str) -> list[dict]:
+    
     """
     The orchestrator: parse source code and return a structured
     complexity report, one entry per TOP-LEVEL function.
     """
+    from app.patterns import run_all_patterns
     tree = parse_source(source_code)
     all_functions = find_functions(tree.root_node)
 
@@ -140,12 +143,13 @@ def analyze_file(source_code: str) -> list[dict]:
 
         name, params = get_function_signature(func_node, source_code)
         report.append({
-            "name": name,
+          "name": name,
             "params": params,
             "start_line": func_node.start_point[0] + 1,
             "end_line": func_node.end_point[0] + 1,
             "loop_depth": max_loop_depth(func_node),
             "is_recursive": is_recursive(func_node, source_code),
             "complexity": estimate_complexity(func_node, source_code),
+            "pattern_findings": run_all_patterns(func_node, source_code),
         })
     return report
