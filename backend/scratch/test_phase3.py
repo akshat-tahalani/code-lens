@@ -273,3 +273,32 @@ for label, code in invariant_tests.items():
     print(f"  {label:35s} -> {fired}  {matches}")
 
 
+print()
+print("=" * 60)
+print("TEST: full analyze_file pipeline on a 'worst offender' file")
+print("=" * 60)
+
+from app.parser import analyze_file
+import json
+
+worst_offender_code = """
+def terrible_function(arr, targets, lookup_source):
+    result = ''
+    for i in arr:
+        for j in arr:
+            if i in targets:
+                result += str(i)
+    for x in range(10):
+        print(x)
+    lookup = set(lookup_source)
+    return result
+
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+"""
+
+results = analyze_file(worst_offender_code)
+for r in results:
+    print(f"\n{r['name']}: {r['complexity']} (loop_depth={r['loop_depth']}, recursive={r['is_recursive']})")

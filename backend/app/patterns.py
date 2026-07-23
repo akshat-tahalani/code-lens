@@ -573,13 +573,20 @@ def run_all_patterns(func_node, source_code: str) -> list[dict]:
     The rule runner: checks a function against EVERY registered pattern
     in PATTERNS, and returns a flat list of findings.
 
-    This is what analyze_file (Phase 2) will call, merging structural
-    heuristics with named pattern findings into one report.
+    Deduplicates by (pattern_name, line) — a pattern can technically
+    match the same line multiple times if it sits inside multiple
+    nested loops (each loop's body walk re-discovers it), but showing
+    the same finding twice to the user is just noise, not extra signal.
     """
     findings = []
+    seen = set()
     for pattern in PATTERNS:
         matches = pattern.detector(func_node, source_code)
         for match in matches:
+            key = (pattern.name, match["line"])
+            if key in seen:
+                continue
+            seen.add(key)
             findings.append({
                 "pattern_name": pattern.name,
                 "category": pattern.category,
